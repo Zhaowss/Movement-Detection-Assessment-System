@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>用户登录页面</title>
+        <meta name="keywords" content="用户登录页面">
+        <meta name="description" content="用户登录页面">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="icon" th:href="@{/static/layuimini/images/favicon.ico}">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            .layui-form-select dl dd.layui-this {
+                color: #1E9FFF !important;
+            }
+
+            .layui-input:focus, .layui-textarea:focus {
+                border-color: #1E9FFF !important;
+                box-shadow: 0 0 0 3px rgba(22, 183, 119, .08);
+            }
+
+            html, body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden
+            }
+
+            body {
+                background: #1E9FFF;
+            }
+
+            body:after {
+                content: '';
+                background-repeat: no-repeat;
+                background-size: cover;
+                -webkit-filter: blur(3px);
+                -moz-filter: blur(3px);
+                -o-filter: blur(3px);
+                -ms-filter: blur(3px);
+                filter: blur(3px);
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: -1;
+            }
+
+            .layui-container {
+                width: 100%;
+                height: 100%;
+                overflow: hidden
+            }
+
+            .admin-login-background {
+                width: 360px;
+                height: 300px;
+                position: absolute;
+                left: 50%;
+                top: 40%;
+                margin-left: -180px;
+                margin-top: -100px;
+            }
+
+            .logo-title {
+                text-align: center;
+                letter-spacing: 2px;
+                padding: 14px 0;
+            }
+
+            .logo-title h1 {
+                color: #1E9FFF;
+                font-size: 25px;
+                font-weight: bold;
+            }
+
+            .login-form {
+                background-color: #fff;
+                border: 1px solid #fff;
+                border-radius: 3px;
+                padding: 14px 20px;
+                box-shadow: 0 0 8px #eeeeee;
+            }
+
+            .login-form .layui-form-item {
+                position: relative;
+            }
+
+            .login-form .layui-form-item input {
+                padding-left: 36px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layui-container">
+            <div class="admin-login-background">
+                <div class="layui-form login-form">
+                    <form class="layui-form">
+                        <div class="layui-form-item logo-title">
+                            <div class="layui-row">
+                                <div class="layui-col-xs1">
+                                    <img style="width: 35px; height: 35px" src="/static/layuimini/images/logo.png"
+                                         alt="logo">
+                                </div>
+                                <div class="layui-col-xs11">
+                                    <h1>山西梓诺科技有限公司视觉训练辅助系统</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-wrap">
+                                <div class="layui-input-prefix">
+                                    <i class="layui-icon layui-icon-username"></i>
+                                </div>
+                                <input type="text" name="name" lay-verify="required" placeholder="请输入姓名"
+                                       autocomplete="off" class="layui-input" lay-affix="clear">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-wrap">
+                                <div class="layui-input-prefix">
+                                    <i class="layui-icon layui-icon-password"></i>
+                                </div>
+                                <input type="password" name="password" lay-verify="required" placeholder="请输入密码"
+                                       autocomplete="off" class="layui-input" lay-affix="eye">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-wrap">
+                                <div class="layui-input-prefix">
+                                    <i class="layui-icon layui-icon-auz"></i>
+                                </div>
+                                <select name="role" lay-verify="required" lay-search>
+                                    <option value="">请选择角色</option>
+                                    <option value="0">管理员</option>
+                                    <option value="1">训练员</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <button type="submit" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit
+                                    lay-filter="loginBtn">
+                                <i class="layui-icon layui-icon-release"></i>&nbsp;&nbsp;登录&nbsp;
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/jquery-3.4.1/jquery-3.4.1.min.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/jq-module/jquery.particleground.min.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            $('.layui-container').particleground({
+                dotColor: '#7ec7fd',
+                lineColor: '#7ec7fd'
+            });
+
+            layui.use(['jquery', 'layer', 'form'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    form = layui.form;
+
+                if (top.location !== self.location) {
+                    top.location = self.location;
+                }
+
+                form.on('submit(loginBtn)', function (data) {
+                    $.ajax({
+                        url: '/user/login',
+                        type: 'POST',
+                        data: JSON.stringify(data.field),
+                        dataType: 'json',
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (res) {
+                            if (res.code === 200) {
+                                layer.msg(res.msg, {icon: 1, offset: '50px', time: 1500}, function () {
+                                    layui.data('user_data', {key: 'user', value: res.data});
+                                    window.location.href = '/toIndex';
+                                });
+                            } else {
+                                layer.msg(res.msg, {icon: 2, offset: '50px', time: 1500});
+                            }
+                        },
+                        error: function (error) {
+                            layer.msg(error, {icon: 2, offset: '50px', time: 1500}, function () {
+                                window.location.href = '/toError';
+                            });
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    </body>
+</html>

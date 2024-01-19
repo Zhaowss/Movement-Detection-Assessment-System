@@ -1,0 +1,165 @@
+body {
+    margin: 15px 15px 15px 15px;
+    background: #f2f2f2;
+}
+
+.layuimini-container {
+    border: 1px solid #f2f2f2;
+    border-radius: 5px;
+    background-color: #ffffff
+}
+
+.layuimini-main {
+    margin: 10px 10px 10px 10px;
+}
+
+/**
+必填红点
+ */
+.layuimini-form > .layui-form-item > .required:after {
+    content: '*';
+    color: red;
+    position: absolute;
+    margin-left: 4px;
+    font-weight: bold;
+    line-height: 1.8em;
+    top: 6px;
+    right: 5px;
+}
+
+.layuimini-form > .layui-form-item > .layui-form-label {
+    width: 120px !important;
+}
+
+.layuimini-form > .layui-form-item > .layui-input-block {
+    margin-left: 150px !important;
+}
+
+.layuimini-form > .layui-form-item > .layui-input-block > tip {
+    display: inline-block;
+    margin-top: 10px;
+    line-height: 10px;
+    font-size: 10px;
+    color: #a29c9c;
+}
+
+/**
+搜索框
+ */
+.layuimini-container .table-search-fieldset {
+    margin: 0;
+    border: 1px solid #e6e6e6;
+    padding: 10px 20px 5px 20px;
+    color: #6b6b6b;
+}
+
+/**
+自定义滚动条样式
+ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #9c9da0;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em
+}
+
+/**
+自定义样式
+ */
+
+/* 数据表格下方分页栏位置居中 */
+.layui-table-page {
+    text-align: center;
+}
+
+/* 数据表格下方分页栏游标背景颜色 */
+.layui-laypage .layui-laypage-curr .layui-laypage-em {
+    background-color: #1E9FFF !important;
+}
+
+/* 数据表格下方分页栏输入页码和分页大小选择背景颜色 */
+.layui-laypage input:focus, .layui-laypage select:focus {
+    border-color: #1E9FFF !important;
+}
+
+/* 多选框背景颜色 */
+.layui-form-checked[lay-skin=primary] i {
+    border-color: #1E9FFF !important;
+    background-color: #FFFFFF !important;
+    color: #1E9FFF !important;
+}
+
+/* 多选框选中背景颜色 */
+.layui-form-checkbox[lay-skin=primary]:hover i {
+    border-color: #1E9FFF !important;
+}
+
+/* 单选框选中背景颜色 */
+.layui-form-checked i, .layui-form-checked:hover i {
+    color: #1E9FFF !important;
+}
+
+/* 下拉选择框背景颜色 */
+.layui-form-select dl dd.layui-this {
+    color: #1E9FFF !important;
+}
+
+/* 日期组件底部背景颜色 */
+.layui-laydate-footer span:hover {
+    color: #1E9FFF !important;
+}
+
+/* 文件上传图标背景颜色 */
+.layui-upload-drag .layui-icon {
+    font-size: 50px;
+    color: #1E9FFF !important;
+}
+
+/* 单选框选中背景颜色 */
+.layui-form-radio:hover *, .layui-form-radioed, .layui-form-radioed > i {
+    color: #1E9FFF !important;
+}
+
+/* 原始按钮选中背景颜色 */
+.layui-btn-primary:hover {
+    border-color: #1E9FFF !important;
+}
+
+/* 文本框选中背景颜色 */
+.layui-input:focus, .layui-textarea:focus {
+    border-color: #1E9FFF !important;
+    box-shadow: 0 0 0 3px rgba(22, 183, 119, .08);
+}
+
+/* 自定义徽章颜色 */
+.layui-bg-silk-deep-blue {
+    background-color: rgb(237, 245, 245) !important;
+    color: rgb(27, 99, 136) !important;
+}
+
+.layui-bg-silk-deep-pink {
+    background-color: rgb(252, 238, 243) !important;
+    color: rgb(202, 40, 102) !important;
+}
+
+.layui-bg-silk-deep-green {
+    background-color: rgb(237, 251, 243) !important;
+    color: rgb(90, 189, 112) !important;
+}
+
+.layui-bg-silk-deep-purple {
+    background-color: rgb(237, 251, 243) !important;
+    color: #a233c6 !important;
+}

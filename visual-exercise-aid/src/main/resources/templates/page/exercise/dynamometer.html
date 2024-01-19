@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>检力器</title>
+        <meta name="keywords" content="检力器">
+        <meta name="description" content="检力器">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            body {
+                background-color: #fafafa;
+            }
+
+            .layui-card {
+                border: 1px solid #f2f2f2;
+                border-radius: 5px;
+            }
+
+            .icon-blue {
+                color: #1e9fff !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-md7">
+                <div class="layui-card">
+                    <div class="layui-card-header" style="font-weight: bold;">
+                        <i class="fa fa-video-camera icon-blue"></i>&nbsp;&nbsp;视屏实时检测
+                        <div class="layui-btn-group" style="float: right;">
+                            <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" id="startBtn">
+                                <i class="layui-icon layui-icon-play"></i>&nbsp;开始训练
+                            </button>
+                            <button type="button" disabled class="layui-btn layui-btn-disabled layui-btn-sm"
+                                    id="endBtn">
+                                <i class="layui-icon layui-icon-pause"></i>&nbsp;结束训练
+                            </button>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <video id="video" playsinline style="display: none;"></video>
+                        <canvas id="output" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+                </div>
+                <div class="layui-card">
+                    <div class="layui-card-header" style="font-weight: bold;">
+                        <i class="fa fa-bullhorn icon-blue"></i>&nbsp;&nbsp;注意事项
+                    </div>
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="currentTableId"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md5">
+                <div class="layui-card">
+                    <div class="layui-card-header" style="font-weight: bold;">
+                        <i class="fa fa-male icon-blue"></i>&nbsp;&nbsp;标准动作演示
+                    </div>
+                    <div class="layui-card-body">
+                        <video autoplay muted controls style="height: 100%; width: 100%;" src=""
+                               id="standardVideo"></video>
+                    </div>
+                </div>
+                <div class="layui-card">
+                    <div class="layui-card-header" style="font-weight: bold;">
+                        <i class="fa fa-question-circle icon-blue"></i>&nbsp;&nbsp;标准动作要领
+                    </div>
+                    <div class="layui-card-body">
+                        <p id="StandardPrompt">加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:src="@{/static/layuimini/lib/tf-model/tf.min.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/tf-model/posenet.min.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            function getCurrentFormatDate() {
+                var date = new Date();
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var strDate = date.getDate();
+                var separator = "-";
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                var currentFormatdate = year + separator + month + separator + strDate;
+                return currentFormatdate;
+            }
+
+            function getCurrentFormatTime() {
+                var currentFormatTime = new Date().toTimeString().substr(0, 8);
+                return currentFormatTime;
+            }
+
+            layui.use(['jquery', 'layer', 'util', 'table', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    util = layui.util,
+                    table = layui.table,
+                    common = layui.common;
+
+                var ws = new WebSocket('ws://localhost:9999/websocket');
+
+                window.onbeforeunload = function () {
+                    ws.close();
+                };
+
+                ws.onerror = function () {
+                    console.log("连接失败");
+                };
+
+                ws.onopen = function () {
+                    console.log('连接成功');
+                };
+
+                ws.onclose = function () {
+                    console.log("关闭连接");
+                };
+
+                ws.onmessage = function (e) {
+                    console.log('收到服务器响应', e.data);
+                    actualCount++;
+                    passCount++;
+                    scores.push(100);
+                };
+
+                $(window).resize(function () {
+                    layer.msg('检测到画面大小调整，即将重新载入页面...', {time: 1500}, function () {
+                        window.location.reload();
+                    });
+                });
+
+                var speak = (msg) => speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
+                var video;
+                var videoWidth = $('#output').width();
+                var videoHeight = $('#output').height();
+                var frameId;
+
+                var captureInRealTimeState = true;
+                var detectPoseInRealTimeState = true;
+
+                var planCount = 0;
+                var actualCount = 0;
+                var passCount = 0;
+                var scores = [];
+                var progress = 0;
+                var passRate = 0;
+                var standard = 0;
+                var score = 0;
+                var result = 0;
+
+                async function setupCamera() {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        throw 'Browser API navigator.mediaDevices.getUserMedia not available';
+                    }
+                    var video = document.getElementById('video');
+                    video.width = videoWidth;
+                    video.height = videoHeight;
+                    var constraints = {
+                        audio: false,
+                        video: {
+                            width: videoWidth,
+                            height: videoHeight
+                        }
+                    };
+                    video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
+
+                    return new Promise(resolve => {
+                        video.onloadedmetadata = () => {
+                            resolve(video);
+                        };
+                    });
+                }
+
+                async function loadVideo() {
+                    var video = await setupCamera();
+                    video.play();
+
+                    return video;
+                }
+
+                function captureInRealTime(video) {
+                    var canvas = document.getElementById('output');
+                    var ctx = canvas.getContext('2d');
+                    canvas.width = videoWidth;
+                    canvas.height = videoHeight;
+
+                    async function captureFrame() {
+                        ctx.clearRect(0, 0, videoWidth, videoHeight);
+                        ctx.save();
+                        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                        ctx.restore();
+                        if (captureInRealTimeState) {
+                            frameId = window.requestAnimationFrame(captureFrame);
+                        }
+                    }
+
+                    captureFrame();
+                }
+
+                function detectPoseInRealTime(video) {
+                    var canvas = document.getElementById('output');
+                    var ctx = canvas.getContext('2d');
+                    canvas.width = videoWidth;
+                    canvas.height = videoHeight;
+
+                    async function poseDetectionFrame() {
+                        ctx.clearRect(0, 0, videoWidth, videoHeight);
+                        ctx.save();
+                        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+                        ctx.restore();
+                        drawMetric(ctx);
+                        if (detectPoseInRealTimeState) {
+                            frameId = window.requestAnimationFrame(poseDetectionFrame);
+                        }
+                    }
+
+                    poseDetectionFrame();
+                }
+
+                async function loadPage() {
+                    $.ajax({
+                        url: '/subject/get/' + common.DynamometerId,
+                        type: 'GET',
+                        data: null,
+                        dataType: 'json',
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (res) {
+                            if (res.code === 200) {
+                                $('#StandardPrompt').text(res.data.prompt);
+                                $('#standardVideo').attr('src', res.data.video);
+                            } else {
+                                layer.msg(res.msg, {icon: 2, time: 1500});
+                            }
+                        },
+                        error: function (error) {
+                            layer.msg(error, {icon: 2, time: 1500}, function () {
+                                common.errorRedirect();
+                            });
+                        }
+                    });
+                    try {
+                        var loadIndex = layer.load(2, {shade: false});
+                        video = await loadVideo();
+                        layer.close(loadIndex);
+                    } catch (e) {
+                        layer.msg('设备没有摄像头', {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                        throw e;
+                    }
+                    captureInRealTime(video);
+                }
+
+                function drawMetric(ctx) {
+                    if (actualCount >= planCount) {
+                        $('#startBtn').removeClass('layui-btn-disabled');
+                        $('#startBtn').addClass('layui-btn-normal');
+                        $('#startBtn').attr('disabled', false);
+                        $('#endBtn').removeClass('layui-btn-danger');
+                        $('#endBtn').addClass('layui-btn-disabled');
+                        $('#endBtn').attr('disabled', true);
+                        closePage();
+                    }
+                    ctx.font = '18px Arial';
+                    ctx.fillStyle = 'white';
+                    ctx.fillText('计划：' + planCount.toString(), 20, 40);
+                    ctx.fillText('计数：' + actualCount.toString(), 20, 80);
+                    if (scores.length === 0) {
+                        ctx.fillText('评分：' + '无', 20, 120);
+                    } else {
+                        ctx.fillText('评分：' + scores[scores.length - 1].toString(), 20, 120);
+                    }
+                }
+
+                function closePage() {
+                    speak('训练已结束，放松一下吧');
+                    detectPoseInRealTimeState = false;
+                    window.cancelAnimationFrame(frameId);
+                    if (planCount === 0) {
+                        progress = 0;
+                    } else {
+                        progress = parseFloat((actualCount / planCount).toFixed(4)) * 100;
+                    }
+                    if (actualCount === 0) {
+                        passRate = 0;
+                    } else {
+                        passRate = parseFloat((passCount / actualCount).toFixed(4)) * 100;
+                    }
+                    if (scores.length === 0) {
+                        standard = 0;
+                    } else {
+                        standard = parseFloat((scores.reduce((a, b) => a + b) / scores.length).toFixed(2));
+                    }
+                    score = parseFloat(((passRate + standard) / 2).toFixed(2));
+                    var resultHtml;
+                    if (score <= 100 && score >= 90) {
+                        result = 0;
+                        resultHtml = '<span class="layui-font-18 layui-font-green" style="font-weight: bold;">优秀</span>';
+                    } else if (score < 90 && score >= 80) {
+                        result = 1;
+                        resultHtml = '<span class="layui-font-18 layui-font-blue" style="font-weight: bold;">良好</span>';
+                    } else if (score < 80 && score >= 60) {
+                        result = 2;
+                        resultHtml = '<span class="layui-font-18 layui-font-orange" style="font-weight: bold;">合格</span>';
+                    } else if (score < 60 && score >= 0) {
+                        result = 3;
+                        resultHtml = '<span class="layui-font-18 layui-font-red" style="font-weight: bold;">不合格</span>';
+                    } else {
+                        result = 4;
+                        resultHtml = '<span class="layui-font-18 layui-font-purple" style="font-weight: bold;">未知</span>';
+                    }
+                    layer.msg('请稍后...', {icon: 16, time: 1500}, function () {
+                        var content = `
+                            <div class="layui-text" style="padding: 30px;">
+                                <h2 style="text-align: center;">训练综合评分</h2>
+                                <hr>
+                                <blockquote>
+                                    <ul class="layui-font-18">
+                                      <li>
+                                        <p><span class="layui-font-18">计划训练：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${planCount}</span><span class="layui-font-18"> 个</span></p>
+                                      </li>
+                                      <li>
+                                        <p><span class="layui-font-18">实际训练：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${actualCount}</span><span class="layui-font-18"> 个</span></p>
+                                      </li>
+                                      <li>
+                                        <p><span class="layui-font-18">合格训练：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${passCount}</span><span class="layui-font-18"> 个</span></p>
+                                      </li>
+                                    </ul>
+                                </blockquote>
+                                <hr>
+                                <blockquote>
+                                    <ul class="layui-font-18">
+                                      <li>
+                                        <p><span class="layui-font-18">训练进度：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${progress}</span><span class="layui-font-18"> %</span></p>
+                                      </li>
+                                      <li>
+                                        <p><span class="layui-font-18">合格率：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${passRate}</span><span class="layui-font-18"> %</span></p>
+                                      </li>
+                                      <li>
+                                        <p><span class="layui-font-18">标准度：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${standard}</span><span class="layui-font-18"> %</span></p>
+                                      </li>
+                                    </ul>
+                                </blockquote>
+                                <hr>
+                                <blockquote>
+                                    <ul class="layui-font-18">
+                                      <li>
+                                        <p><span class="layui-font-18">训练成绩：</span><span class="layui-font-18 layui-font-red" style="font-weight: bold;">${score}</span><span class="layui-font-18"> 分</span></p>
+                                      </li>
+                                      <li>
+                                        <p><span class="layui-font-18">训练结果：</span>${resultHtml}</p>
+                                      </li>
+                                    </ul>
+                                </blockquote>
+                                <hr>
+                            </div>
+                        `;
+                        layer.open({
+                            type: 1,
+                            title: false,
+                            area: ['400px', '360px'],
+                            closeBtn: 2,
+                            shade: 0.8,
+                            content: content,
+                            cancel: function (index) {
+                                layer.close(index);
+                                $.ajax({
+                                    url: '/record/save',
+                                    type: 'POST',
+                                    data: JSON.stringify(
+                                        {
+                                            'userId': layui.data('user_data').user.id,
+                                            'subjectId': common.DynamometerId,
+                                            'planCount': planCount,
+                                            'actualCount': actualCount,
+                                            'passCount': passCount,
+                                            'progress': progress,
+                                            'passRate': passRate,
+                                            'standard': standard,
+                                            'score': score,
+                                            'result': result,
+                                            'exerciseTime': getCurrentFormatDate() + ' ' + getCurrentFormatTime()
+                                        }
+                                    ),
+                                    dataType: 'json',
+                                    contentType: 'application/json;charset=UTF-8',
+                                    success: function (res) {
+                                        if (res.code === 200) {
+                                            layer.msg(res.msg, {icon: 1, time: 1500}, function () {
+                                                parent.window.close();
+                                            });
+                                        } else {
+                                            layer.msg(res.msg, {icon: 2, time: 1500}, function () {
+                                                parent.window.close();
+                                            });
+                                        }
+                                    },
+                                    error: function (error) {
+                                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                                            common.errorRedirect();
+                                        });
+                                    }
+                                });
+                                return false;
+                            }
+                        });
+                    });
+                }
+
+                $('#startBtn').click(function () {
+                    layer.prompt({title: '计划训练动作数量'}, function (value, index, elem) {
+                        if (value === '') {
+                            return elem.focus();
+                        }
+                        if (Number.isInteger(parseInt(util.escape(value)))) {
+                            planCount = parseInt(util.escape(value));
+                        } else {
+                            planCount = 0;
+                        }
+                        captureInRealTimeState = false;
+                        window.cancelAnimationFrame(frameId);
+                        detectPoseInRealTime(video);
+                        $('#startBtn').removeClass('layui-btn-normal');
+                        $('#startBtn').addClass('layui-btn-disabled');
+                        $('#startBtn').attr('disabled', true);
+                        $('#endBtn').removeClass('layui-btn-disabled');
+                        $('#endBtn').addClass('layui-btn-danger');
+                        $('#endBtn').attr('disabled', false);
+                        layer.close(index);
+                        speak('请正面对摄像头，按照标准动作要求开始做检力器');
+                        layer.msg('请正面对摄像头，按照标准动作要求开始做检力器');
+                        $.ajax({
+                            url: '/serialPort/list',
+                            type: 'GET',
+                            data: null,
+                            dataType: 'json',
+                            contentType: 'application/json;charset=UTF-8',
+                            success: function () {
+                                console.log('打开端口成功');
+                            },
+                            error: function () {
+                                console.log('打开端口失败');
+                            }
+                        });
+                    });
+                });
+
+                $('#endBtn').click(function () {
+                    layer.confirm('确定结束训练？', {icon: 0, title: '警告'}, function (index) {
+                        $('#startBtn').removeClass('layui-btn-disabled');
+                        $('#startBtn').addClass('layui-btn-normal');
+                        $('#startBtn').attr('disabled', false);
+                        $('#endBtn').removeClass('layui-btn-danger');
+                        $('#endBtn').addClass('layui-btn-disabled');
+                        $('#endBtn').attr('disabled', true);
+                        layer.close(index);
+                        closePage();
+                    });
+                });
+
+                table.render({
+                    elem: '#currentTableId',
+                    url: '/note/list',
+                    cols: [
+                        [
+                            {
+                                field: 'icon', width: '10%', align: 'center', templet: function (row) {
+                                    return '<i class="layui-icon layui-icon-speaker layui-font-20" style="color: #1E9FFF; font-weight: bold;"></i>';
+                                }
+                            },
+                            {field: 'title', width: '60%', align: 'left'},
+                            {
+                                field: 'releaseTime', width: '30%', align: 'right', templet: function (row) {
+                                    return '<span class="layui-badge layui-bg-silk-deep-pink layui-font-14">' + row.releaseTime + '</span>';
+                                }
+                            }
+                        ]
+                    ],
+                    limits: [5, 10, 15, 20, 25, 50, 100],
+                    limit: 10,
+                    page: true,
+                    skin: 'line',
+                    even: true,
+                    response: {
+                        statusCode: 200
+                    },
+                    error: function (error) {
+                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                    },
+                    done: function () {
+                        $('th').hide();
+                        $("table").css("width", "100%");
+                    }
+                });
+
+                table.on('row(currentTableId)', function (obj) {
+                    var content = `
+                        <div class="layui-text" style="padding: 30px;">
+                            <h2 style="text-align: center;">${obj.data.title}</h2>
+                            <hr>
+                            <p>${obj.data.content}</p>
+                            <hr>
+                        </div>
+                        <div style="padding-right: 30px; padding-left: 30px; padding-bottom:30px; text-align: center;">
+                            <img src="${obj.data.picture}" alt="图片" style="margin: 0 auto; width: 570px;">
+                        </div>
+                    `;
+                    layer.open({
+                        type: 1,
+                        title: '注意事项' + '<span style="float: right; font-size: 14px; color: #b1b3b9;">' + obj.data.releaseTime + '</span>',
+                        area: ['630px', '360px'],
+                        closeBtn: 2,
+                        shade: 0.8,
+                        content: content
+                    });
+                });
+
+                loadPage();
+            });
+        </script>
+    </body>
+</html>

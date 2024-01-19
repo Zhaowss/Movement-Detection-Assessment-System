@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>训练科目管理页面</title>
+        <meta name="keywords" content="训练科目管理页面">
+        <meta name="description" content="训练科目管理页面">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            .layui-table-cell {
+                height: auto !important;
+                white-space: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layuimini-container">
+            <div class="layuimini-main">
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>训练科目管理</legend>
+                </fieldset>
+                <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+            </div>
+        </div>
+        <script type="text/html" id="currentToolBar">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-radius layui-btn-normal layui-btn-sm" lay-event="add">
+                    <i class="fa fa-plus"></i>&nbsp;&nbsp;添加&nbsp;
+                </button>
+                <button class="layui-btn layui-btn-radius layui-btn-sm" lay-event="refresh">
+                    <i class="fa fa-refresh"></i>&nbsp;&nbsp;刷新&nbsp;
+                </button>
+            </div>
+        </script>
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">
+                <i class="fa fa-edit"></i>&nbsp;&nbsp;编辑&nbsp;
+            </a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">
+                <i class="fa fa-trash"></i>&nbsp;&nbsp;删除&nbsp;
+            </a>
+        </script>
+        <script type="text/html" id="currentTableTpl">
+            <div>
+                <video src={{d.video}} height="100" onclick="previewVideo(this.src)"></video>
+            </div>
+        </script>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            function previewVideo(src) {
+                layer.open({
+                    type: 2,
+                    title: false,
+                    area: ['630px', '360px'],
+                    shade: 0.8,
+                    closeBtn: 0,
+                    shadeClose: true,
+                    content: src
+                });
+            }
+
+            layui.use(['jquery', 'layer', 'table', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    table = layui.table,
+                    common = layui.common;
+
+                table.render({
+                    elem: '#currentTableId',
+                    url: '/subject/list',
+                    toolbar: '#currentToolBar',
+                    defaultToolbar: ['filter', 'exports', 'print'],
+                    cols: [
+                        [
+                            {field: 'id', title: '编号', width: 100, align: 'center', sort: true},
+                            {field: 'name', title: '名称', minWidth: 200},
+                            {field: 'prompt', title: '标准动作提示', minWidth: 200},
+                            {
+                                field: 'video',
+                                title: '标准动作视频',
+                                minWidth: 200,
+                                align: 'center',
+                                templet: '#currentTableTpl'
+                            },
+                            {fixed: 'right', title: '操作', minWidth: 200, align: 'center', toolbar: '#currentTableBar'}
+                        ]
+                    ],
+                    limits: [5, 10, 15, 20, 25, 50, 100],
+                    limit: 10,
+                    page: true,
+                    skin: 'line',
+                    size: 'lg',
+                    response: {
+                        statusCode: 200
+                    },
+                    error: function (error) {
+                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                    }
+                });
+
+                table.on('toolbar(currentTableFilter)', function (obj) {
+                    if (obj.event === 'add') {
+                        var index = layer.open({
+                            title: '添加训练科目',
+                            type: 2,
+                            area: ['100%', '100%'],
+                            content: 'toSubjectAdd'
+                        });
+                        $(window).on("resize", function () {
+                            layer.full(index);
+                        });
+                    } else if (obj.event === 'refresh') {
+                        table.reload('currentTableId');
+                    }
+                });
+
+                table.on('tool(currentTableFilter)', function (obj) {
+                    if (obj.event === 'edit') {
+                        formData = obj.data;
+                        var index = layer.open({
+                            title: '编辑训练科目',
+                            type: 2,
+                            area: ['100%', '100%'],
+                            content: 'toSubjectEdit'
+                        });
+                        $(window).on("resize", function () {
+                            layer.full(index);
+                        });
+                    } else if (obj.event === 'delete') {
+                        layer.confirm('确定删除？', {icon: 0, title: '警告'}, function (index) {
+                            layer.msg('请稍后...', {icon: 16, time: 1500}, function () {
+                                $.ajax({
+                                    url: '/subject/remove/' + obj.data.id,
+                                    type: "DELETE",
+                                    data: null,
+                                    dataType: 'json',
+                                    contentType: 'application/json;charset=UTF-8',
+                                    success: function (res) {
+                                        if (res.code === 200) {
+                                            layer.msg(res.msg, {icon: 1, time: 1500}, function () {
+                                                table.reload('currentTableId');
+                                                layer.close(index);
+                                            });
+                                        } else {
+                                            layer.msg(res.msg, {icon: 2, time: 1500}, function () {
+                                                table.reload('currentTableId');
+                                                layer.close(index);
+                                            });
+                                        }
+                                    },
+                                    error: function (error) {
+                                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                                            common.errorRedirect();
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
+
+            });
+        </script>
+    </body>
+</html>

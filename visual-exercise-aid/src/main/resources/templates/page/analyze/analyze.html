@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>训练分析页面</title>
+        <meta name="keywords" content="训练分析页面">
+        <meta name="description" content="训练分析页面">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            .layui-card {
+                border: 1px solid #f2f2f2;
+                border-radius: 5px;
+            }
+
+            .icon-blue {
+                color: #1e9fff !important;
+            }
+
+            .layui-laydate .layui-this, .layui-laydate .layui-this > div {
+                background-color: #1e9fff !important;
+                color: #fff !important;
+            }
+
+            .layui-laydate-linkage .layui-laydate-content td.laydate-selected > div {
+                background-color: #31bdec !important;
+            }
+
+            .layui-laydate-content td.laydate-day-now {
+                color: #1e9fff !important;
+            }
+
+            .layui-laydate-footer span[lay-type=date] {
+                color: #1e9fff !important;
+            }
+
+            .layui-laydate-content td.laydate-day-now:after {
+                border: 1px solid #1e9fff !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layuimini-container">
+            <div class="layuimini-main">
+                <div class="layui-row layui-col-space20">
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">
+                                <i class="fa fa-line-chart icon-blue"></i>&nbsp;&nbsp;训练员训练记录技术分析
+                            </div>
+                            <div class="layui-card-body">
+                                <fieldset class="table-search-fieldset">
+                                    <legend>搜索信息</legend>
+                                    <div style="margin: 10px 10px 10px 10px">
+                                        <form class="layui-form layui-form-pane layuimini-form" action>
+                                            <div class="layui-form-item">
+                                                <div class="layui-inline">
+                                                    <label class="layui-form-label">训练员</label>
+                                                    <div class="layui-input-inline">
+                                                        <label>
+                                                            <select name="userId" lay-verify="required" lay-search
+                                                                    id="userId">
+                                                                <option value="">请直接选择或搜索选择</option>
+                                                            </select>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="layui-inline">
+                                                    <label class="layui-form-label">训练科目</label>
+                                                    <div class="layui-input-inline">
+                                                        <label>
+                                                            <select name="subjectId" lay-verify="required" lay-search
+                                                                    id="subjectId">
+                                                                <option value="">请直接选择或搜索选择</option>
+                                                            </select>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="layui-form-item">
+                                                <div class="layui-inline" id="rangeLinked">
+                                                    <label class="layui-form-label">开始时间</label>
+                                                    <div class="layui-input-inline">
+                                                        <label>
+                                                            <input type="text" name="startTime" lay-verify="required"
+                                                                   placeholder="yyyy-MM-dd HH:mm:ss" class="layui-input"
+                                                                   id="startTime">
+                                                        </label>
+                                                    </div>
+                                                    <div class="layui-form-mid">-</div>
+                                                    <label class="layui-form-label">结束时间</label>
+                                                    <div class="layui-input-inline">
+                                                        <label>
+                                                            <input type="text" name="endTime" lay-verify="required"
+                                                                   placeholder="yyyy-MM-dd HH:mm:ss" class="layui-input"
+                                                                   id="endTime">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="layui-form-item">
+                                                <div class="layui-inline">
+                                                    <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                                            lay-filter="searchBtn">
+                                                        <i class="fa fa-search"></i>&nbsp;&nbsp;搜索&nbsp;
+                                                    </button>
+                                                    <button type="reset" class="layui-btn layui-btn-primary">
+                                                        <i class="fa fa-remove"></i>&nbsp;&nbsp;重置&nbsp;
+                                                    </button>
+                                                    <button class="layui-btn layui-btn-primary" id="generateBtn">
+                                                        <i class="fa fa-lightbulb-o"></i>&nbsp;&nbsp;生成训练建议&nbsp;
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </fieldset>
+                                <div id="echarts-line" style="width: 100%; height:500px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/echarts-5.4.3/echarts.min.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            layui.use(['jquery', 'layer', 'form', 'laydate', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    form = layui.form,
+                    laydate = layui.laydate,
+                    common = layui.common;
+
+                $.ajax({
+                    url: '/user/list',
+                    type: 'GET',
+                    data: null,
+                    dataType: 'json',
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.each(res.data, function (index, value) {
+                                $('#userId').append(new Option(value.name, value.id));
+                            });
+                            form.render("select");
+                        } else {
+                            layer.msg(res.msg, {icon: 2, time: 1500});
+                        }
+                    },
+                    error: function (error) {
+                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                    }
+                });
+
+                $.ajax({
+                    url: '/subject/list',
+                    type: 'GET',
+                    data: null,
+                    dataType: 'json',
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (res) {
+                        if (res.code === 200) {
+                            $.each(res.data, function (index, value) {
+                                $('#subjectId').append(new Option(value.name, value.id));
+                            });
+                            form.render("select");
+                        } else {
+                            layer.msg(res.msg, {icon: 2, time: 1500});
+                        }
+                    },
+                    error: function (error) {
+                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                    }
+                });
+
+                laydate.render({
+                    elem: '#rangeLinked',
+                    type: 'datetime',
+                    range: ['#startTime', '#endTime'],
+                    rangeLinked: true
+                });
+
+                $('#generateBtn').click(function () {
+                    var index = layer.open({
+                        title: '生成训练建议',
+                        type: 2,
+                        area: ['100%', '100%'],
+                        content: 'toSuggestAdd'
+                    });
+                    $(window).on("resize", function () {
+                        layer.full(index);
+                    });
+                    return false;
+                });
+
+                form.on('submit(searchBtn)', function (data) {
+                    loadEchartsLine(data.field.userId, data.field.subjectId, data.field.startTime, data.field.endTime);
+                    return false;
+                });
+
+                function loadEchartsLine(userId, subjectId, startTime, endTime) {
+                    var echartsLine = echarts.init(document.getElementById('echarts-line'), 'walden');
+                    var option = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        dataZoom: {
+                            textStyle: {
+                                fontSize: 14
+                            }
+                        },
+                        grid: {
+                            left: '10%',
+                            right: '5%',
+                            bottom: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: [],
+                            axisLabel: {
+                                fontSize: 14
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: {
+                                fontSize: 14
+                            }
+                        },
+                        series: [
+                            {
+                                name: '训练进度（%）',
+                                type: 'line',
+                                data: []
+                            },
+                            {
+                                name: '合格率（%）',
+                                type: 'line',
+                                data: []
+                            },
+                            {
+                                name: '标准度（%）',
+                                type: 'line',
+                                data: []
+                            },
+                            {
+                                name: '训练成绩（分）',
+                                type: 'line',
+                                data: []
+                            }
+                        ]
+                    };
+                    echartsLine.setOption(option);
+
+                    window.onresize = function () {
+                        echartsLine.resize();
+                    };
+
+                    echartsLine.showLoading({
+                        text: '加载中...'
+                        , fontSize: 20
+                        , color: '#1E9FFF'
+                        , textColor: '#1E9FFF'
+                    });
+
+                    $.ajax({
+                        url: '/record/stat?userId=' + userId + '&subjectId=' + subjectId + '&startTime=' + startTime + '&endTime=' + endTime,
+                        type: 'GET',
+                        data: null,
+                        dataType: 'json',
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (res) {
+                            if (res.code === 200) {
+                                var exerciseTimeList = [];
+                                var progressList = [];
+                                var passRateList = [];
+                                var standardList = [];
+                                var scoreList = [];
+                                $.each(res.data, function (index, value) {
+                                    exerciseTimeList.push(value.exerciseTime);
+                                    progressList.push(value.progress);
+                                    passRateList.push(value.passRate);
+                                    standardList.push(value.standard);
+                                    scoreList.push(value.score);
+                                });
+                                echartsLine.setOption({
+                                    xAxis: {
+                                        data: exerciseTimeList
+                                    },
+                                    series: [
+                                        {
+                                            name: '训练进度（%）',
+                                            data: progressList
+                                        },
+                                        {
+                                            name: '合格率（%）',
+                                            data: passRateList
+                                        },
+                                        {
+                                            name: '标准度（%）',
+                                            data: standardList
+                                        },
+                                        {
+                                            name: '训练成绩（%）',
+                                            data: scoreList
+                                        }
+                                    ]
+                                });
+                                echartsLine.hideLoading();
+                            } else {
+                                layer.msg(res.msg, {icon: 2, time: 1500});
+                            }
+                        },
+                        error: function (error) {
+                            layer.msg(error, {icon: 2, time: 1500}, function () {
+                                common.errorRedirect();
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

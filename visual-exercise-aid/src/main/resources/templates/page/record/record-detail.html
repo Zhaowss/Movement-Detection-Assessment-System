@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>训练记录分析页面</title>
+        <meta name="keywords" content="训练记录分析页面">
+        <meta name="description" content="训练记录分析页面">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            body {
+                background-color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="echarts-radar" style="width: 100%; height: 500px;"></div>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/lib/echarts-5.4.3/echarts.min.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            layui.use(['jquery', 'layer', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    common = layui.common;
+
+                var formData = parent.formData;
+
+                function loadEchartsRadar() {
+                    var echartsRadar = echarts.init(document.getElementById('echarts-radar'), 'walden');
+                    var option = {
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        radar: {
+                            indicator: [
+                                {name: '计划训练动作数量（个）', max: 100},
+                                {name: '实际训练动作数量（个）', max: 100},
+                                {name: '合格训练动作数量（个）', max: 100},
+                                {name: '训练进度（%）', max: 100},
+                                {name: '合格率（%）', max: 100},
+                                {name: '标准度（%）', max: 100},
+                                {name: '训练成绩（分）', max: 100}
+                            ],
+                            center: ['50%', '50%'],
+                            radius: 200,
+                            axisName: {
+                                color: '#fff',
+                                backgroundColor: '#666',
+                                borderRadius: 2,
+                                padding: [5, 5],
+                                fontSize: 14
+                            }
+                        },
+                        series: [
+                            {
+                                name: '训练记录详细数据',
+                                type: 'radar',
+                                data: [
+                                    {
+                                        value: [
+                                            formData.planCount,
+                                            formData.actualCount,
+                                            formData.passCount,
+                                            formData.progress,
+                                            formData.passRate,
+                                            formData.standard,
+                                            formData.score
+                                        ],
+                                        symbol: 'rect',
+                                        symbolSize: 20,
+                                        lineStyle: {
+                                            type: 'dashed'
+                                        },
+                                        label: {
+                                            show: true,
+                                            fontSize: 14,
+                                            fontWeight: 'bold',
+                                            color: 'red',
+                                            formatter: function (params) {
+                                                return params.value;
+                                            }
+                                        },
+                                        areaStyle: {
+                                            color: new echarts.graphic.RadialGradient(0.1, 0.6, 1, [
+                                                {
+                                                    color: 'rgba(255, 145, 124, 0.1)',
+                                                    offset: 0
+                                                },
+                                                {
+                                                    color: 'rgba(255, 145, 124, 0.9)',
+                                                    offset: 1
+                                                }
+                                            ])
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+                    echartsRadar.setOption(option);
+
+                    window.onresize = function () {
+                        echartsRadar.resize();
+                    };
+                }
+
+                loadEchartsRadar();
+
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>注意事项编辑页面</title>
+        <meta name="keywords" content="注意事项编辑页面">
+        <meta name="description" content="注意事项编辑页面">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            body {
+                background-color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <form class="layui-form layuimini-form" action lay-filter="currentFormFilter"
+              style="margin-top: 50px; margin-right: 50px; margin-bottom: 50px;">
+            <div class="layui-form-item">
+                <label class="layui-form-label required">编号</label>
+                <div class="layui-input-block">
+                    <label>
+                        <input type="text" name="id" lay-verify="required|number" placeholder="请输入"
+                               class="layui-input layui-disabled" disabled readonly lay-affix="clear">
+                    </label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label required">标题</label>
+                <div class="layui-input-block">
+                    <label>
+                        <input type="text" name="title" lay-verify="required" placeholder="请输入" autocomplete="off"
+                               class="layui-input" lay-affix="clear">
+                    </label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label required">内容</label>
+                <div class="layui-input-block">
+                    <label>
+                        <textarea name="content" lay-verify="required" placeholder="请输入" autocomplete="off"
+                                  class="layui-textarea" lay-affix="clear"></textarea>
+                    </label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label required">上传注意事项图片</label>
+                <div class="layui-input-block">
+                    <div class="layui-upload-drag" id="uploadFile">
+                        <i class="layui-icon layui-icon-upload"></i>
+                        <p>点击上传，或将图片拖拽到此处</p>
+                        <div id="uploadFileView" style="height: 210px;">
+                            <hr>
+                            <img src="/static/layuimini/images/upload_file_add.png" alt="图片"
+                                 style="max-width: 100%; max-height: 100%;">
+                        </div>
+                    </div>
+                    <label>
+                        <input type="text" name="picture" class="layui-input layui-hide" id="picture">
+                    </label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="submit" class="layui-btn layui-btn-radius layui-btn-normal" lay-submit
+                            lay-filter="saveBtn">
+                        <i class="fa fa-check"></i>&nbsp;&nbsp;确认保存&nbsp;
+                    </button>
+                    <button type="reset" class="layui-btn layui-btn-radius layui-btn-primary">
+                        <i class="fa fa-remove"></i>&nbsp;&nbsp;重置&nbsp;
+                    </button>
+                </div>
+            </div>
+        </form>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            // 获取当前yyyy-MM-dd格式的日期
+            function getCurrentFormatDate() {
+                var date = new Date();
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var strDate = date.getDate();
+                var separator = "-";
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                var currentFormatdate = year + separator + month + separator + strDate;
+                return currentFormatdate;
+            }
+
+            // 获取当前HH:mm:ss格式的时间
+            function getCurrentFormatTime() {
+                var currentFormatTime = new Date().toTimeString().substr(0, 8);
+                return currentFormatTime;
+            }
+
+            layui.use(['jquery', 'layer', 'form', 'upload', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    form = layui.form,
+                    upload = layui.upload,
+                    common = layui.common;
+
+                var formData = parent.formData;
+                form.val("currentFormFilter", {
+                    id: formData.id,
+                    title: formData.title,
+                    content: formData.content,
+                    picture: formData.picture
+                });
+
+                upload.render({
+                    elem: '#uploadFile',
+                    url: '/file/upload',
+                    accept: 'file',
+                    before: function () {
+                        layer.msg('上传中...', {icon: 16, time: 0});
+                    },
+                    done: function (res) {
+                        if (res.code === 200) {
+                            layer.msg(res.msg, {icon: 1, time: 1500}, function () {
+                                $('#uploadFileView').find('img').attr('src', '/static/layuimini/images/upload_file_ok.png');
+                                $('#picture').val(res.data);
+                            });
+                        } else {
+                            layer.msg(res.msg, {icon: 2, time: 1500});
+                        }
+                    },
+                    error: function (error) {
+                        layer.msg(error, {icon: 2, time: 1500}, function () {
+                            common.errorRedirect();
+                        });
+                    }
+                });
+
+                $('#resetBtn').click(function () {
+                    $('#uploadFileView').find('img').attr('src', '/static/layuimini/images/upload_file_add.png');
+                });
+
+                form.on('submit(saveBtn)', function (data) {
+                    data.field.releaseTime = getCurrentFormatDate() + ' ' + getCurrentFormatTime();
+                    layer.msg('请稍后...', {icon: 16, time: 1500}, function () {
+                        $.ajax({
+                            url: '/note/update',
+                            type: 'PUT',
+                            data: JSON.stringify(data.field),
+                            dataType: 'json',
+                            contentType: 'application/json;charset=UTF-8',
+                            success: function (res) {
+                                if (res.code === 200) {
+                                    layer.msg(res.msg, {icon: 1, time: 1500}, function () {
+                                        var iframeIndex = parent.layer.getFrameIndex(window.name);
+                                        parent.layui.table.reload('currentTableId');
+                                        parent.layer.close(iframeIndex);
+                                    });
+                                } else {
+                                    layer.msg(res.msg, {icon: 2, time: 1500}, function () {
+                                        var iframeIndex = parent.layer.getFrameIndex(window.name);
+                                        parent.layui.table.reload('currentTableId');
+                                        parent.layer.close(iframeIndex);
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                layer.msg(error, {icon: 2, time: 1500}, function () {
+                                    common.errorRedirect();
+                                });
+                            }
+                        });
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    </body>
+</html>

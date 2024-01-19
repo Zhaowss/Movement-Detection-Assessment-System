@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>视觉训练辅助系统</title>
+        <meta name="keywords" content="视觉训练辅助系统">
+        <meta name="description" content="视觉训练辅助系统">
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="icon" th:href="@{/static/layuimini/images/favicon.ico}">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/layui-v2.8.17/css/layui.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/css/public.css}" media="all">
+        <link rel="stylesheet" th:href="@{/static/layuimini/lib/font-awesome-4.7.0/css/font-awesome.min.css}"
+              media="all">
+        <!--[if lt IE 9]>
+        <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+        <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                overflow: hidden;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="layui-layout layui-layout-admin">
+            <div class="layui-header">
+                <ul class="layui-nav layui-bg-blue">
+                    <li class="layui-nav-item" lay-unselect>
+                        <a href="/toIndex" target="_blank">
+                            <img src="/static/layuimini/images/logo-white.ico" alt="LOGO">
+                        </a>
+                    </li>
+                    <li class="layui-nav-item" lay-unselect>
+                        <a href="/toIndex" target="_blank">
+                            <p style="font-weight: bold; letter-spacing: 2px; font-size: 18px;">山西梓诺科技有限公司视觉训练辅助系统</p>
+                        </a>
+                    </li>
+                    <li class="layui-nav-item layui-this">
+                    <a href="toPullUp" target="main-content" class="layui-font-18"
+                       style="font-weight: bold; letter-spacing: 2px;">辅助式引体向上</a>
+                </li>
+                    <li class="layui-nav-item">
+                        <a href="toDeepSquat" target="main-content" class="layui-font-18"
+                           style="font-weight: bold; letter-spacing: 2px;">负重深蹲</a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="toDynamometer" target="main-content" class="layui-font-18"
+                           style="font-weight: bold; letter-spacing: 2px;">检力器</a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="toRopeClimb" target="main-content" class="layui-font-18"
+                           style="font-weight: bold; letter-spacing: 2px;">爬绳机</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="layui-body" style="left:0; padding-bottom: 0;">
+                <iframe src="toPullUp" name="main-content" allowtransparency="true" scrolling="auto" frameborder="0"
+                        width="100%" height="100%">
+                </iframe>
+            </div>
+        </div>
+        <script th:src="@{/static/layuimini/lib/layui-v2.8.17/layui.js}" charset="utf-8"></script>
+        <script th:src="@{/static/layuimini/js/lay-config.js}" charset="utf-8"></script>
+        <script type="text/javascript">
+            layui.use(['jquery', 'layer', 'element', 'common'], function () {
+                var $ = layui.jquery,
+                    layer = layui.layer,
+                    element = layui.element,
+                    common = layui.common;
+            });
+        </script>
+    </body>
+</html>
