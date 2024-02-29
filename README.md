@@ -18,22 +18,22 @@
 
 登录界面：
 
-![image-20240229190607965](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229190607965.png)
+![image-20240229190607965](image-20240229190607965.png)
 
 功能界面：
 
-![image-20240229192028380](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192028380.png)
+![image-20240229192028380](image-20240229192028380.png)
 
-![image-20240229192107328](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192107328.png)
-
-
+![image-20240229192107328](image-20240229192107328.png)
 
 
 
-![image-20240229192130320](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192130320.png)
 
-![image-20240229192150853](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192150853.png)
 
-![image-20240229192240431](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192240431.png)
+![image-20240229192130320](image-20240229192130320.png)
 
-![image-20240229192256917](D:\Desktop\llava\Movement-Detection-Assessment-System\README.assets\image-20240229192256917.png)
+![image-20240229192150853](image-20240229192150853.png)
+
+![image-20240229192240431](image-20240229192240431.png)
+
+![image-20240229192256917](image-20240229192256917.png)
